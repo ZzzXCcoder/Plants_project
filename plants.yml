@@ -1,0 +1,42 @@
+version: '3.4'
+
+networks:
+  dev:
+    driver: bridge
+
+services:
+  plants_api:
+    image: plants_api
+    depends_on:
+      - "plants_db"
+    container_name: plants_api
+    ports:
+      - 5228:80
+    expose:
+      - 80
+    build:
+      context: .
+      dockerfile: Plants/Dockerfile
+    environment:
+      - ConnectionStrings__defaultConnection=Username=postgres;Password=123123;Host=plants_db;Port=5432;Database=plants_bd;
+      - VIRTUAL_PORT=80
+    networks:
+      - dev
+
+  plants_db:
+    image: postgres:16.2
+    container_name: plants_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123123
+      - POSTGRES_DB:plants_bd
+    ports:
+      - "5438:5432"
+    restart: always
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+    networks:
+      - dev
+      
+volumes:
+  db_volume:
